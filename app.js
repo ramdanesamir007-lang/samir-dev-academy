@@ -5,12 +5,12 @@
   const main = document.getElementById('main');
 
   const paths = [
-    { title: 'Programming Foundations', level: 'Beginner', desc: 'Core concepts, logic and your first programs.' },
-    { title: 'Front-End Development', level: 'Beginner', desc: 'HTML, CSS and JavaScript for the web.' },
-    { title: 'JavaScript Deep Dive', level: 'Intermediate', desc: 'Async, modules and practical patterns.' },
-    { title: 'React Essentials', level: 'Intermediate', desc: 'Components, state and building apps.' },
-    { title: 'Back-End Basics', level: 'Beginner', desc: 'APIs, servers and data on the web.' },
-    { title: 'Full-Stack Projects', level: 'Intermediate', desc: 'Connect front-end and back-end together.' },
+    { title: 'Programming Foundations', level: 'Beginner', desc: 'Core concepts, logic and your first programs — the base for everything.' },
+    { title: 'Front-End Development', level: 'Beginner', desc: 'HTML, CSS and JavaScript for the web, picking up from zero.' },
+    { title: 'JavaScript Deep Dive', level: 'Intermediate', desc: 'Async, modules and practical patterns you use every day.' },
+    { title: 'React Essentials', level: 'Intermediate', desc: 'Components, state and building real interfaces.' },
+    { title: 'Back-End Basics', level: 'Beginner', desc: 'APIs, servers and storing data on the web.' },
+    { title: 'Full-Stack Projects', level: 'Intermediate', desc: 'Connect front-end and back-end into complete applications.' },
   ];
 
   const courses = [
@@ -25,10 +25,10 @@
   ];
 
   const projects = [
-    { title: 'Personal Portfolio', desc: 'A simple site to showcase your work.' },
-    { title: 'Task Tracker', desc: 'Add, complete and remove tasks.' },
-    { title: 'Weather Widget', desc: 'Pull live weather data from an API.' },
-    { title: 'Notes App', desc: 'Saved notes in the browser.' },
+    { title: 'Personal Portfolio', desc: 'A simple, fast site to showcase your work and tell your story.' },
+    { title: 'Task Tracker', desc: 'Add, complete and remove tasks — a great first JS app.' },
+    { title: 'Weather Widget', desc: 'Pull live weather data from an open API onto the page.' },
+    { title: 'Notes App', desc: 'Saved notes that stay in your browser, built step by step.' },
   ];
 
   function card(title, desc, extra = '') {
