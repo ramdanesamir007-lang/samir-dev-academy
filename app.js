@@ -90,6 +90,30 @@
   else if (page === 'privacy') renderPrivacy();
   else fillLists();
 
+  // Modal preview shown when clicking any course/path/project card
+  function showModal(title, body) {
+    let m = document.getElementById('app-modal');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'app-modal';
+      m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:99';
+      m.innerHTML = `<div style="background:#111627;border:1px solid #262d43;border-radius:16px;padding:28px;max-width:560px;margin:20px;color:#f4f5fc;text-align:center"><h3 id="m-t" style="margin:0 0 12px"></h3><p id="m-b" style="color:#acb3c9;margin:0 0 18px"></p><button id="m-x" style="padding:10px 22px;border-radius:9px;background:#7956e9;border:0;color:#fff;cursor:pointer">Close</button></div>`;
+      document.body.appendChild(m);
+      m.onclick = (ev) => { if (ev.target === m) m.style.display = 'none'; };
+      m.querySelector('#m-x').onclick = () => { m.style.display = 'none'; };
+    }
+    m.querySelector('#m-t').textContent = title;
+    m.querySelector('#m-b').textContent = body || 'A practical lesson from this path is ready. Thank you for your interest!';
+    m.style.display = 'flex';
+  }
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.course-card,.path-card,.project-card');
+    if (!card) return;
+    const h3 = card.querySelector('h3')?.textContent || 'Lesson';
+    const p = (card.querySelector('p')?.textContent || '').trim();
+    showModal(h3, p);
+  });
+
   const search = document.getElementById('course-search');
   if (search) {
     search.addEventListener('input', renderCourses);
