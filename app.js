@@ -80,10 +80,10 @@
   }
 
   function renderContact() {
-    main.innerHTML = `<section class="section wrap"><h2>Contact</h2><p>Questions about courses? Reach out anytime.</p><p>Email: hello@samir-dev-academy.example</p></section>`;
+    main.innerHTML = `<section class="section wrap"><div class="section-head"><div><div class="eyebrow">LET'S CONNECT</div><h2>Contact</h2></div><p>Questions, feedback or a collaboration idea?<br>We'd love to hear from you.</p></div><p>Email: hello@samir-dev-academy.example</p><p>Follow the journey on GitHub and YouTube. Every resource here is free to explore.</p></section>`;
   }
   function renderPrivacy() {
-    main.innerHTML = `<section class="section wrap"><h2>Privacy</h2><p>We only collect what you type into the demo. Nothing is stored or shared.</p></section>`;
+    main.innerHTML = `<section class="section wrap"><div class="section-head"><div><div class="eyebrow">YOUR PRIVACY</div><h2>Privacy</h2></div><p>We only collect what you type into the demo forms.<br>Nothing you enter is stored or shared with anyone.</p></div><p>The site uses no personal tracking beyond basic, privacy-friendly usage stats. No accounts, no passwords, no shopping — just learning.</p></section>`;
   }
 
   if (page === 'contact') renderContact();
