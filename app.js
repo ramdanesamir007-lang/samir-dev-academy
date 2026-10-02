@@ -31,10 +31,10 @@
     { title: 'Notes App', desc: 'Saved notes that stay in your browser, built step by step.' },
   ];
 
-  function card(title, desc, extra = '') {
+  function card(title, desc, extra = '', lessons = []) {
     const el = document.createElement('article');
     el.className = 'course-card';
-    el.innerHTML = `<div class="course-content"><h3>${title}</h3><p>${desc}</p>${extra}</div>`;
+    el.innerHTML = `<div class="course-content"><h3>${title}</h3><p>${desc}</p>${extra}<ul class="lessons" style="display:none;color:#93a6c6;margin:10px 0 0;padding-left:18px" >${lessons.map(l=>`<li>${l}</li>`).join('')}</ul></div>`;
     return el;
   }
 
@@ -73,7 +73,7 @@
       return matchQ && matchT && matchL;
     });
 
-    filtered.forEach((c) => grid.appendChild(card(c.title, c.desc, `<small>${c.topic} · ${c.level}</small>`)));
+    filtered.forEach((c) => grid.appendChild(card(c.title, c.desc, `<small>${c.topic} · ${c.level}</small>`, c.lessons)));
     document.getElementById('results').textContent = `${filtered.length} course(s)`;
     const empty = document.getElementById('empty');
     empty.hidden = filtered.length > 0;
@@ -111,9 +111,9 @@
     if (!card) return;
     const h3 = card.querySelector('h3')?.textContent || 'Lesson';
     if (card.classList.contains('course-card')) {
-      const c = courses.find((x) => x.title === h3) || null;
-      if (c) {
-        showModal(c.title, `${c.desc}\n\nTopic: ${c.topic} · Level: ${c.level}\n\nLessons:\n- ${c.lessons.join('\n- ')}`);
+      const ul = card.querySelector('.lessons');
+      if (ul) {
+        ul.style.display = ul.style.display === 'none' ? 'block' : 'none';
         return;
       }
     }
