@@ -14,14 +14,14 @@
   ];
 
   const courses = [
-    { title: 'First Lines of Code', topic: 'Foundations', level: 'Beginner', desc: 'Get comfortable with a code editor and your first script.' },
-    { title: 'HTML & CSS Essentials', topic: 'HTML & CSS', level: 'Beginner', desc: 'Structure and style your first web page.' },
-    { title: 'JavaScript Fundamentals', topic: 'JavaScript', level: 'Beginner', desc: 'Variables, loops and functions made simple.' },
-    { title: 'Build a Landing Page', topic: 'HTML & CSS', level: 'Beginner', desc: 'A complete responsive page from scratch.' },
-    { title: 'React Components 101', topic: 'React', level: 'Intermediate', desc: 'Think in components and state.' },
-    { title: 'First API Call', topic: 'Back-end', level: 'Beginner', desc: 'Fetch data and display it on the page.' },
-    { title: 'Async & Promises', topic: 'JavaScript', level: 'Intermediate', desc: 'Handle time and external data correctly.' },
-    { title: 'Full-Stack Contact App', topic: 'Back-end', level: 'Intermediate', desc: 'Store and show messages end to end.' },
+    { title: 'First Lines of Code', topic: 'Foundations', level: 'Beginner', desc: 'Get comfortable with a code editor and your first script.', lessons: ['Set up your editor', 'Write your first script', 'Run and see the output'] },
+    { title: 'HTML & CSS Essentials', topic: 'HTML & CSS', level: 'Beginner', desc: 'Structure and style your first web page.', lessons: ['HTML structure', 'Tags and attributes', 'CSS basics', 'Styling your page'] },
+    { title: 'JavaScript Fundamentals', topic: 'JavaScript', level: 'Beginner', desc: 'Variables, loops and functions made simple.', lessons: ['Variables and types', 'Loops and conditions', 'Functions', 'First small project'] },
+    { title: 'Build a Landing Page', topic: 'HTML & CSS', level: 'Beginner', desc: 'A complete responsive page from scratch.', lessons: ['Layout with CSS Grid', 'Responsive media queries', 'Adding images and links', 'Publish it locally'] },
+    { title: 'React Components 101', topic: 'React', level: 'Intermediate', desc: 'Think in components and state.', lessons: ['JSX basics', 'Props and composition', 'State with useState', 'Building a component'] },
+    { title: 'First API Call', topic: 'Back-end', level: 'Beginner', desc: 'Fetch data and display it on the page.', lessons: ['What is an API', 'Fetch and JSON', 'Rendering data', 'Error handling'] },
+    { title: 'Async & Promises', topic: 'JavaScript', level: 'Intermediate', desc: 'Handle time and external data correctly.', lessons: ['Callbacks to Promises', 'async/await', 'Error catching', 'Real fetch flow'] },
+    { title: 'Full-Stack Contact App', topic: 'Back-end', level: 'Intermediate', desc: 'Store and show messages end to end.', lessons: ['Form UI', 'Send to a server', 'Store the message', 'Display messages'] },
   ];
 
   const projects = [
@@ -97,7 +97,7 @@
       m = document.createElement('div');
       m.id = 'app-modal';
       m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:99';
-      m.innerHTML = `<div style="background:#111627;border:1px solid #262d43;border-radius:16px;padding:28px;max-width:560px;margin:20px;color:#f4f5fc;text-align:center"><h3 id="m-t" style="margin:0 0 12px"></h3><p id="m-b" style="color:#acb3c9;margin:0 0 18px"></p><button id="m-x" style="padding:10px 22px;border-radius:9px;background:#7956e9;border:0;color:#fff;cursor:pointer">Close</button></div>`;
+      m.innerHTML = `<div style="background:#111627;border:1px solid #262d43;border-radius:16px;padding:28px;max-width:560px;margin:20px;color:#f4f5fc;text-align:center"><h3 id="m-t" style="margin:0 0 12px"></h3><p id="m-b" style="color:#acb3c9;margin:0 0 18px;white-space:pre-line"></p><button id="m-x" style="padding:10px 22px;border-radius:9px;background:#7956e9;border:0;color:#fff;cursor:pointer">Close</button></div>`;
       document.body.appendChild(m);
       m.onclick = (ev) => { if (ev.target === m) m.style.display = 'none'; };
       m.querySelector('#m-x').onclick = () => { m.style.display = 'none'; };
@@ -110,6 +110,13 @@
     const card = e.target.closest('.course-card,.path-card,.project-card');
     if (!card) return;
     const h3 = card.querySelector('h3')?.textContent || 'Lesson';
+    if (card.classList.contains('course-card')) {
+      const c = courses.find((x) => x.title === h3) || null;
+      if (c) {
+        showModal(c.title, `${c.desc}\n\nTopic: ${c.topic} · Level: ${c.level}\n\nLessons:\n- ${c.lessons.join('\n- ')}`);
+        return;
+      }
+    }
     const p = (card.querySelector('p')?.textContent || '').trim();
     showModal(h3, p);
   });
