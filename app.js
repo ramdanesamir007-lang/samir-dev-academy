@@ -24,6 +24,11 @@
     { title: 'Full-Stack Contact App', topic: 'Back-end', level: 'Intermediate', desc: 'Store and show messages end to end.', lessons: ['Form UI', 'Send to a server', 'Store the message', 'Display messages'] },
   ];
 
+  courses.forEach((course, id) => course.lessons.push(...AcademyLearning.extraTitles(id)));
+
+  const pathCourses = [[0, 2], [1, 2, 3], [2, 6], [2, 4], [2, 5], [1, 2, 5, 7]];
+  let selectedPath = null;
+
   const projects = [
     { title: 'Personal Portfolio', desc: 'A simple, fast site to showcase your work and tell your story.' },
     { title: 'Task Tracker', desc: 'Add, complete and remove tasks — a great first JS app.' },
@@ -40,12 +45,7 @@
 
   function fillLists() {
     const pathGrid = document.getElementById('path-grid');
-    paths.forEach((p) => {
-      const el = document.createElement('article');
-      el.className = 'path-card';
-      el.innerHTML = `<h3>${p.title}</h3><p>${p.desc}</p><span>${p.level}</span>`;
-      pathGrid.appendChild(el);
-    });
+    renderPaths();
 
     const projectGrid = document.getElementById('project-grid');
     projects.forEach((p) => {
@@ -58,7 +58,64 @@
     renderCourses();
   }
 
-  const courseMap = new Map();
+  function pathStats(index) {
+    const ids = pathCourses[index];
+    return { done: ids.reduce((sum, id) => sum + AcademyLearning.count(id), 0), total: ids.reduce((sum, id) => sum + AcademyLearning.total(id), 0) };
+  }
+  function renderPaths() {
+    const grid = document.getElementById('path-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    paths.forEach((path, index) => {
+      const stats = pathStats(index);
+      const el = document.createElement('article');
+      el.className = 'path-card';
+      el.dataset.path = index;
+      el.innerHTML = '<h3>' + path.title + '</h3><p>' + path.desc + '</p><span>' + path.level + '</span><div class="path-progress"><p>' + pathCourses[index].length + ' courses · ' + stats.done + ' / ' + stats.total + ' lessons completed</p><progress max="' + stats.total + '" value="' + stats.done + '" aria-label="Path progress"></progress><button class="button small" aria-controls="path-details" aria-expanded="' + (selectedPath === index) + '">Explore path →</button></div>';
+      el.querySelector('button').onclick = event => { event.stopPropagation(); openPath(index); };
+      grid.appendChild(el);
+    });
+  }
+  function renderPathDetails() {
+    let panel = document.getElementById('path-details');
+    if (selectedPath === null) { if (panel) panel.remove(); return; }
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.id = 'path-details';
+      panel.className = 'path-details';
+      panel.setAttribute('aria-labelledby', 'path-title');
+      document.getElementById('path-grid').after(panel);
+    }
+    const ids = pathCourses[selectedPath];
+    const path = paths[selectedPath];
+    const stats = pathStats(selectedPath);
+    panel.innerHTML = '<div class="path-details-head"><div><span class="eyebrow">YOUR COURSE ROADMAP</span><h3 id="path-title" tabindex="-1">' + path.title + '</h3><p>' + path.desc + '</p><p>' + stats.done + ' / ' + stats.total + ' lessons completed. Progress is shared with the course catalog.</p></div><button class="button secondary small" data-close-path>Close path ×</button></div><ol class="path-course-list"></ol><button class="button" data-start-path>' + (stats.done === stats.total ? 'Review path' : stats.done ? 'Continue path →' : 'Start path →') + '</button>';
+    ids.forEach(id => {
+      const course = courses[id];
+      const done = AcademyLearning.count(id);
+      const total = AcademyLearning.total(id);
+      const item = document.createElement('li');
+      item.innerHTML = '<div><h4>' + course.title + '</h4><p>' + course.desc + '</p><small>' + done + ' / ' + total + ' lessons completed</small></div><button class="button secondary small">' + (done === total ? 'Review course' : done ? 'Continue course' : 'Open course') + '</button>';
+      item.querySelector('button').onclick = () => AcademyLearning.open(course, id, refreshLearning);
+      panel.querySelector('ol').appendChild(item);
+    });
+    panel.querySelector('[data-start-path]').onclick = () => {
+      const id = ids.find(id => AcademyLearning.count(id) < AcademyLearning.total(id)) ?? ids[0];
+      AcademyLearning.open(courses[id], id, refreshLearning);
+    };
+    panel.querySelector('[data-close-path]').onclick = () => {
+      const index = selectedPath;
+      selectedPath = null; renderPaths(); renderPathDetails();
+      document.querySelector('[data-path="' + index + '"] button').focus();
+    };
+  }
+  function openPath(index) {
+    selectedPath = index; renderPaths(); renderPathDetails();
+    document.getElementById('path-title').focus({ preventScroll: true });
+    document.getElementById('path-details').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+  }
+  function refreshLearning() { renderCourses(); renderPaths(); renderPathDetails(); }
+
   function renderCourses() {
     const grid = document.getElementById('course-grid');
     grid.innerHTML = '';
@@ -67,13 +124,24 @@
     const level = document.getElementById('level-filter').value;
 
     const filtered = courses.filter((c) => {
-      const matchQ = !q || c.title.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q);
+      const matchQ = !q || c.title.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q) || AcademyLocale.t(c.title).toLowerCase().includes(q) || AcademyLocale.t(c.desc).toLowerCase().includes(q);
       const matchT = topic === 'all' || c.topic === topic;
       const matchL = level === 'all' || c.level === level;
       return matchQ && matchT && matchL;
     });
 
-    filtered.forEach((c) => grid.appendChild(card(c.title, c.desc, `<small>${c.topic} · ${c.level}</small>`, c.lessons)));
+    filtered.forEach(c => {
+      const id = courses.indexOf(c);
+      const done = AcademyLearning.count(id);
+      const total = AcademyLearning.total(id);
+      const el = card(c.title, c.desc, "<small>" + c.topic + " · " + c.level + "</small>");
+      const progress = document.createElement("div");
+      progress.className = "course-learning";
+      progress.innerHTML = `<p>${done} / ${total} lessons completed</p><progress max="${total}" value="${done}" aria-label="Course progress"></progress><button class="button small">${done === total ? "Review course" : done ? "Continue learning" : "Start course"}</button>`;
+      progress.querySelector("button").onclick = event => { event.stopPropagation(); AcademyLearning.open(c, id, refreshLearning); };
+      el.querySelector(".course-content").appendChild(progress);
+      grid.appendChild(el);
+    });
     document.getElementById('results').textContent = `${filtered.length} course(s)`;
     const empty = document.getElementById('empty');
     empty.hidden = filtered.length > 0;
@@ -83,7 +151,7 @@
     main.innerHTML = `<section class="section wrap"><div class="section-head"><div><div class="eyebrow">LET'S CONNECT</div><h2>Contact</h2></div><p>Questions, feedback or a collaboration idea?<br>We'd love to hear from you.</p></div><p>Email: hello@samir-dev-academy.example</p><p>Follow the journey on GitHub and YouTube. Every resource here is free to explore.</p></section>`;
   }
   function renderPrivacy() {
-    main.innerHTML = `<section class="section wrap"><div class="section-head"><div><div class="eyebrow">YOUR PRIVACY</div><h2>Privacy</h2></div><p>We only collect what you type into the demo forms.<br>Nothing you enter is stored or shared with anyone.</p></div><p>The site uses no personal tracking beyond basic, privacy-friendly usage stats. No accounts, no passwords, no shopping — just learning.</p></section>`;
+    main.innerHTML = `<section class="section wrap"><div class="section-head"><div><div class="eyebrow">YOUR PRIVACY</div><h2>Privacy</h2></div><p>Lessons, assessment results, last-visited lessons, editor drafts and your language preference are saved in local storage on this browser.<br>No account is required and progress is not sent to a server.</p></div><p>Progress is specific to this browser and device. Clearing site data removes it. External fonts may be loaded from Google Fonts. No accounts or payments are implemented.</p></section>`;
   }
 
   if (page === 'contact') renderContact();
@@ -109,6 +177,7 @@
   document.addEventListener('click', (e) => {
     const card = e.target.closest('.course-card,.path-card,.project-card');
     if (!card) return;
+    if (card.classList.contains('path-card')) { openPath(Number(card.dataset.path)); return; }
     const h3 = card.querySelector('h3')?.textContent || 'Lesson';
     if (card.classList.contains('course-card')) {
       const ul = card.querySelector('.lessons');
@@ -140,4 +209,11 @@
     nav.classList.toggle('open');
     toggle.setAttribute('aria-expanded', nav.classList.contains('open'));
   });
+  window.AcademyCourses = { courses, refresh: refreshLearning };
 })();
+
+
+
+
+
+
